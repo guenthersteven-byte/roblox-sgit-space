@@ -125,6 +125,8 @@ local systemModules = {
     "AlienManager",
     "QuestManager",
     "StationBuilder",
+    -- Phase 8
+    "PlayerSafety",
 }
 
 local loadedSystems = {}

@@ -200,8 +200,15 @@ function AlienManager:_alienAILoop(alienData: any)
         if not rootPart then break end
 
         if alienData.state == "idle" then
-            -- Wait a bit, then wander
+            -- Check if player is nearby - show curious speech bubble
             alienData.stateTimer += 1
+
+            local nearestPlayer, nearestDist = self:_findNearestPlayer(rootPart.Position)
+            if nearestPlayer and nearestDist < 20 and alienData.stateTimer % 6 == 0 then
+                -- Show speech bubble
+                self:_showSpeechBubble(alienData, nearestPlayer)
+            end
+
             if alienData.stateTimer > math.random(3, 6) then
                 alienData.state = "wander"
                 alienData.stateTimer = 0
@@ -318,11 +325,23 @@ function AlienManager:_onFeedRequest(player: Player, alienModelName: string)
         AlienStateChanged:FireClient(player, alienDef.id, "happy", currentFeeds, alienDef.feedsToTame)
     end
 
-    -- Check if tamed
+    -- Check if tamed (requires taming_device!)
     if currentFeeds >= alienDef.feedsToTame then
-        task.delay(1.5, function()
-            self:_tameAlien(player, alienData)
-        end)
+        local hasTamingDevice = InventoryServer:HasItem(player, "taming_device", 1)
+        if hasTamingDevice then
+            task.delay(1.5, function()
+                self:_tameAlien(player, alienData)
+            end)
+        else
+            -- Notify player they need taming device
+            local TriggerCelebration = Remotes:FindFirstChild("TriggerCelebration") :: RemoteEvent?
+            if TriggerCelebration then
+                TriggerCelebration:FireClient(player, {
+                    type = "message",
+                    text = "Du brauchst ein Freundschafts-Geraet zum Zaehmen! (Crafting: C)",
+                })
+            end
+        end
     end
 
     -- Notify QuestManager of feeding
@@ -366,12 +385,106 @@ function AlienManager:_tameAlien(player: Player, alienData: any)
         QuestManager:OnAlienTamed(player, alienDef.id)
     end
 
+    -- Give taming reward items
+    local TAMING_REWARDS = {
+        blob = { { "space_berry", 5 } },
+        penguin = { { "frost_fish", 5 }, { "ice_crystal", 3 } },
+        firefly = { { "glow_mushroom", 5 }, { "energy_orb", 3 } },
+        salamander = { { "ember_fruit", 5 }, { "fire_crystal", 3 } },
+    }
+    local rewards = TAMING_REWARDS[alienDef.species]
+    if rewards then
+        for _, reward in rewards do
+            InventoryServer:AddItem(player, reward[1], reward[2])
+        end
+    end
+
     -- Clear feed progress
     if feedProgress[player.UserId] then
         feedProgress[player.UserId][alienData.model] = nil
     end
 
     print("[AlienManager] " .. player.Name .. " tamed " .. alienDef.name .. "!")
+end
+
+---------------------------------------------------------------------------
+-- Find nearest player to a position
+---------------------------------------------------------------------------
+function AlienManager:_findNearestPlayer(pos: Vector3): (Player?, number)
+    local nearest: Player? = nil
+    local nearestDist = math.huge
+
+    for _, player in Players:GetPlayers() do
+        local character = player.Character
+        if character then
+            local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
+            if root then
+                local dist = (root.Position - pos).Magnitude
+                if dist < nearestDist then
+                    nearest = player
+                    nearestDist = dist
+                end
+            end
+        end
+    end
+
+    return nearest, nearestDist
+end
+
+---------------------------------------------------------------------------
+-- Show speech bubble above alien
+---------------------------------------------------------------------------
+function AlienManager:_showSpeechBubble(alienData: any, player: Player)
+    local rootPart = alienData.model:FindFirstChild("HumanoidRootPart") :: BasePart?
+    if not rootPart then return end
+
+    local alienDef = alienData.definition
+    local favoriteFood = Items.get(alienDef.favoriteFood)
+
+    local messages = {
+        "Hallo! Ich hab Hunger...",
+        "Hast du " .. (favoriteFood and favoriteFood.name or "Essen") .. " fuer mich?",
+        "Magst du mein Freund sein?",
+        "Ich bin " .. alienDef.name .. "!",
+    }
+
+    local text = messages[math.random(1, #messages)]
+
+    -- Create speech bubble
+    local bb = Instance.new("BillboardGui")
+    bb.Size = UDim2.new(0, 180, 0, 50)
+    bb.StudsOffset = Vector3.new(0, 5, 0)
+    bb.AlwaysOnTop = true
+    bb.MaxDistance = 30
+    bb.Parent = rootPart
+
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3 = Color3.fromHex("14350d")
+    bg.BackgroundTransparency = 0.2
+    bg.Parent = bb
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = bg
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -10, 1, -6)
+    label.Position = UDim2.new(0, 5, 0, 3)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.fromHex("5cd43e")
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 13
+    label.TextWrapped = true
+    label.Parent = bg
+
+    -- Auto-remove after 4 seconds
+    task.delay(4, function()
+        if bb and bb.Parent then
+            bb:Destroy()
+        end
+    end)
 end
 
 ---------------------------------------------------------------------------

@@ -201,28 +201,30 @@
       "$className": "Lighting",
       "$ignoreUnknownInstances": true,
       "$properties": {
-        "Ambient": {"Color3": [0.039, 0.059, 0.031]},
-        "OutdoorAmbient": {"Color3": [0.102, 0.165, 0.251]},
-        "Brightness": 1,
-        "ClockTime": 14,
-        "FogEnd": 10000
+        "Ambient": {"Color3": [0.1, 0.12, 0.15]},
+        "OutdoorAmbient": {"Color3": [0.04, 0.04, 0.1]},
+        "Brightness": 0.8,
+        "ClockTime": 0,
+        "FogEnd": 100000
       },
 
       "SpaceSky": {
         "$className": "Sky",
         "$properties": {
           "CelestialBodiesShown": true,
-          "StarCount": 5000
+          "StarCount": 5000,
+          "SunAngularSize": 8,
+          "MoonAngularSize": 6
         }
       },
 
       "SpaceAtmosphere": {
         "$className": "Atmosphere",
         "$properties": {
-          "Density": 0.1,
+          "Density": 0.02,
           "Offset": 0,
-          "Color": {"Color3": [0.102, 0.165, 0.251]},
-          "Decay": {"Color3": [0.039, 0.059, 0.031]},
+          "Color": {"Color3": [0.02, 0.02, 0.06]},
+          "Decay": {"Color3": [0.02, 0.02, 0.06]},
           "Glare": 0,
           "Haze": 0
         }
@@ -231,9 +233,9 @@
       "SpaceBloom": {
         "$className": "BloomEffect",
         "$properties": {
-          "Intensity": 0.5,
+          "Intensity": 0.6,
           "Size": 24,
-          "Threshold": 0.8
+          "Threshold": 0.7
         }
       }
     }

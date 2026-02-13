@@ -37,13 +37,13 @@ local NIGHT_SETTINGS = {
     FogEnd = 600,
 }
 
--- Station lighting (always bright)
+-- Station lighting (space-themed: dark sky with stars, soft station glow)
 local STATION_SETTINGS = {
-    ClockTime = 12,
-    Brightness = 2.5,
-    Ambient = Color3.fromHex("ccddcc"),
-    OutdoorAmbient = Color3.fromHex("eeffee"),
-    FogEnd = 10000,
+    ClockTime = 0, -- Midnight = dark sky with stars visible
+    Brightness = 0.8, -- Soft brightness from station lights
+    Ambient = Color3.fromHex("1a2a3a"), -- Cool blue-black ambient
+    OutdoorAmbient = Color3.fromHex("0a0a1a"), -- Very dark outdoor (space!)
+    FogEnd = 100000, -- No fog in space (see everything)
 }
 
 ---------------------------------------------------------------------------
@@ -120,6 +120,9 @@ function DayCycleServer:SetStationLighting()
         OutdoorAmbient = STATION_SETTINGS.OutdoorAmbient,
         FogEnd = STATION_SETTINGS.FogEnd,
     }):Play()
+
+    -- Setup space sky if not already created
+    self:_setupSpaceSky()
 end
 
 ---------------------------------------------------------------------------
@@ -188,6 +191,125 @@ function DayCycleServer:_updateAmbient()
         OutdoorAmbient = outdoor,
         FogEnd = fogEnd,
     }):Play()
+end
+
+---------------------------------------------------------------------------
+-- Setup space sky with stars and nearby decorative planets
+---------------------------------------------------------------------------
+function DayCycleServer:_setupSpaceSky()
+    -- Configure sky for space look
+    local sky = Lighting:FindFirstChildWhichIsA("Sky")
+    if not sky then
+        sky = Instance.new("Sky")
+        sky.Parent = Lighting
+    end
+    sky.StarCount = 5000 -- Lots of stars
+    sky.SunAngularSize = 8 -- Smaller sun (distant)
+    sky.MoonAngularSize = 6 -- Smaller moon
+    sky.CelestialBodiesShown = true
+
+    -- Configure atmosphere for space (very thin)
+    local atmo = Lighting:FindFirstChildWhichIsA("Atmosphere")
+    if not atmo then
+        atmo = Instance.new("Atmosphere")
+        atmo.Parent = Lighting
+    end
+    atmo.Density = 0.02 -- Almost no atmosphere (space!)
+    atmo.Offset = 0
+    atmo.Color = Color3.fromHex("050510") -- Near-black
+    atmo.Decay = Color3.fromHex("050510") -- Fade to black at edges
+    atmo.Glare = 0
+    atmo.Haze = 0
+
+    -- Bloom for glowing station lights
+    local bloom = Lighting:FindFirstChildWhichIsA("BloomEffect")
+    if not bloom then
+        bloom = Instance.new("BloomEffect")
+        bloom.Parent = Lighting
+    end
+    bloom.Intensity = 0.6
+    bloom.Size = 24
+    bloom.Threshold = 0.7
+
+    -- Create decorative planets in the distance
+    self:_createDecoPlanets()
+
+    print("[DayCycleServer] Space sky configured")
+end
+
+---------------------------------------------------------------------------
+-- Create decorative planet spheres visible from station
+---------------------------------------------------------------------------
+function DayCycleServer:_createDecoPlanets()
+    local decoFolder = workspace:FindFirstChild("DecoPlanets")
+    if decoFolder then return end -- Already created
+
+    decoFolder = Instance.new("Folder")
+    decoFolder.Name = "DecoPlanets"
+    decoFolder.Parent = workspace
+
+    local planets = {
+        {
+            name = "RedGiant",
+            pos = Vector3.new(4000, 800, 3000),
+            size = 600,
+            color = Color3.fromHex("cc4422"),
+            material = Enum.Material.Neon,
+        },
+        {
+            name = "IceWorld",
+            pos = Vector3.new(-3000, 400, 4000),
+            size = 350,
+            color = Color3.fromHex("88bbff"),
+            material = Enum.Material.Ice,
+        },
+        {
+            name = "GasGiant",
+            pos = Vector3.new(-5000, 1200, -2000),
+            size = 900,
+            color = Color3.fromHex("ddaa44"),
+            material = Enum.Material.SmoothPlastic,
+        },
+        {
+            name = "SmallMoon",
+            pos = Vector3.new(2000, 600, -3000),
+            size = 150,
+            color = Color3.fromHex("aaaaaa"),
+            material = Enum.Material.Slate,
+        },
+        {
+            name = "GreenNebula",
+            pos = Vector3.new(-1500, 1500, 5000),
+            size = 250,
+            color = Color3.fromHex("33cc55"),
+            material = Enum.Material.Neon,
+        },
+    }
+
+    for _, planetData in planets do
+        local planet = Instance.new("Part")
+        planet.Name = planetData.name
+        planet.Shape = Enum.PartType.Ball
+        planet.Size = Vector3.new(planetData.size, planetData.size, planetData.size)
+        planet.Position = planetData.pos
+        planet.Color = planetData.color
+        planet.Material = planetData.material
+        planet.Anchored = true
+        planet.CanCollide = false -- Decoration only
+        planet.CastShadow = false
+        planet.Parent = decoFolder
+
+        -- Add subtle glow to neon planets
+        if planetData.material == Enum.Material.Neon then
+            local light = Instance.new("PointLight")
+            light.Color = planetData.color
+            light.Brightness = 0.3
+            light.Range = planetData.size * 0.5
+            light.Parent = planet
+        end
+    end
+
+    print("[DayCycleServer] Decorative planets created (" .. #planets .. ")")
 end
 
 return DayCycleServer

@@ -293,12 +293,34 @@ function ShuttleUI:_showLoading(destination: string)
     if not loadingOverlay then return end
 
     local text = loadingOverlay:FindFirstChild("LoadingText") :: TextLabel?
+    local arrivalText = loadingOverlay:FindFirstChild("ArrivalText") :: TextLabel?
+
+    -- Create arrival text if it doesn't exist
+    if not arrivalText then
+        arrivalText = Instance.new("TextLabel")
+        arrivalText.Name = "ArrivalText"
+        arrivalText.Size = UDim2.new(1, 0, 0, 80)
+        arrivalText.Position = UDim2.new(0, 0, 0.35, 0)
+        arrivalText.BackgroundTransparency = 1
+        arrivalText.TextColor3 = Constants.COLORS.WHITE
+        arrivalText.Font = Constants.FONTS.HEADING
+        arrivalText.TextSize = 48
+        arrivalText.Text = ""
+        arrivalText.TextTransparency = 1
+        arrivalText.ZIndex = 101
+        arrivalText.Parent = loadingOverlay
+    end
+
+    -- Set flight text
+    local planetName = ""
     if text then
         if destination == "station" then
             text.Text = "Flug zur Station..."
+            planetName = "sgit Station Alpha"
         else
             local planetDef = Planets.get(destination)
-            text.Text = "Flug zu " .. (planetDef and planetDef.name or destination) .. "..."
+            planetName = planetDef and planetDef.name or destination
+            text.Text = "Flug zu " .. planetName .. "..."
         end
     end
 
@@ -307,12 +329,32 @@ function ShuttleUI:_showLoading(destination: string)
         BackgroundTransparency = 0,
     }):Play()
 
+    -- Show arrival name after 3 seconds
+    task.delay(3, function()
+        if arrivalText and loadingOverlay.Visible then
+            arrivalText.Text = planetName
+            arrivalText.TextTransparency = 1
+            TweenService:Create(arrivalText, TweenInfo.new(0.5), {
+                TextTransparency = 0,
+            }):Play()
+
+            if text then
+                text.Text = "Ankunft!"
+            end
+        end
+    end)
+
     -- Auto-hide after travel time
-    task.delay(4, function()
+    task.delay(5, function()
         if loadingOverlay then
             TweenService:Create(loadingOverlay, TweenInfo.new(1), {
                 BackgroundTransparency = 1,
             }):Play()
+            if arrivalText then
+                TweenService:Create(arrivalText, TweenInfo.new(0.8), {
+                    TextTransparency = 1,
+                }):Play()
+            end
             task.wait(1)
             loadingOverlay.Visible = false
         end

@@ -30,6 +30,7 @@ PlanetManager.__index = PlanetManager
 
 local InventoryServer = nil
 local QuestManager = nil
+local PlayerSafety = nil
 local Remotes = nil
 
 -- Active resource nodes: { [Instance]: { itemId, respawnTime } }
@@ -49,12 +50,12 @@ function PlanetManager:Init()
     InventoryServer = require(Systems:WaitForChild("InventoryServer"))
     Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
-    -- QuestManager may not be loaded yet, defer
+    -- Deferred system loading (may not be loaded yet)
     task.defer(function()
         local qm = Systems:FindFirstChild("QuestManager")
-        if qm then
-            QuestManager = require(qm)
-        end
+        if qm then QuestManager = require(qm) end
+        local ps = Systems:FindFirstChild("PlayerSafety")
+        if ps then PlayerSafety = require(ps) end
     end)
 end
 
@@ -137,6 +138,13 @@ end
 ---------------------------------------------------------------------------
 -- Create a resource node at a spawn point
 ---------------------------------------------------------------------------
+-- Rarity colors for visual distinction
+local RARITY_COLORS = {
+    [1] = Color3.fromHex("43b02a"), -- Common: green
+    [2] = Color3.fromHex("4da6ff"), -- Rare: blue
+    [3] = Color3.fromHex("ffcc00"), -- Legendary: gold
+}
+
 function PlanetManager:_createResourceNode(spawnPoint: BasePart, planetDef: any)
     -- Pick random resource from planet's resource list
     local resources = planetDef.resources
@@ -144,10 +152,45 @@ function PlanetManager:_createResourceNode(spawnPoint: BasePart, planetDef: any)
     local itemDef = Items.get(itemId)
     if not itemDef then return end
 
-    -- Make spawn point visible as resource
+    -- Make spawn point visible as resource with rarity-based color
     spawnPoint.Transparency = 0
-    spawnPoint.BrickColor = BrickColor.new("Bright green") -- Placeholder, replace with models
+    local rarity = itemDef.rarity or 1
+    spawnPoint.Color = RARITY_COLORS[rarity] or RARITY_COLORS[1]
     spawnPoint.Material = Enum.Material.Neon
+
+    -- Add glow light to resource
+    local existingLight = spawnPoint:FindFirstChildOfClass("PointLight")
+    if not existingLight then
+        local glow = Instance.new("PointLight")
+        glow.Color = spawnPoint.Color
+        glow.Brightness = 0.5
+        glow.Range = 12
+        glow.Parent = spawnPoint
+    end
+
+    -- Add floating name label
+    local existingBB = spawnPoint:FindFirstChildOfClass("BillboardGui")
+    if not existingBB then
+        local bb = Instance.new("BillboardGui")
+        bb.Size = UDim2.new(0, 120, 0, 30)
+        bb.StudsOffset = Vector3.new(0, 3, 0)
+        bb.AlwaysOnTop = false
+        bb.MaxDistance = 30
+        bb.Parent = spawnPoint
+
+        local label = Instance.new("TextLabel")
+        label.Name = "ResourceLabel"
+        label.Size = UDim2.new(1, 0, 1, 0)
+        label.BackgroundTransparency = 1
+        label.Text = itemDef.name
+        label.TextColor3 = Color3.new(1, 1, 1)
+        label.TextStrokeTransparency = 0.3
+        label.TextStrokeColor3 = Color3.new(0, 0, 0)
+        label.Font = Enum.Font.GothamBold
+        label.TextSize = 14
+        label.TextScaled = false
+        label.Parent = bb
+    end
 
     -- Add ProximityPrompt for gathering
     local existingPrompt = spawnPoint:FindFirstChildOfClass("ProximityPrompt")
@@ -203,10 +246,17 @@ function PlanetManager:_onResourceGathered(player: Player, resourceNode: BasePar
         amount = math.random(1, 2)
     end
 
+    -- Laser Cutter bonus: +1 amount if player has one
+    local hasLaserCutter = InventoryServer:HasItem(player, "laser_cutter")
+    if hasLaserCutter then
+        amount = amount + 1
+    end
+
     -- Add to inventory
     local success = InventoryServer:AddItem(player, itemId, amount)
     if not success then
         -- Inventory full - notify player
+        self:_showFloatingText(player, "Inventar voll!", Color3.fromHex("f5a623"))
         return
     end
 
@@ -215,8 +265,28 @@ function PlanetManager:_onResourceGathered(player: Player, resourceNode: BasePar
         QuestManager:OnItemGathered(player, itemId, amount)
     end
 
-    -- Visual feedback: hide resource temporarily
+    -- Show floating text: "+X Itemname"
+    local prefix = hasLaserCutter and "+" .. amount .. " " or "+" .. amount .. " "
+    self:_showFloatingText(player, prefix .. itemDef.name, Color3.fromHex("5cd43e"))
+
+    -- Trigger item_collected celebration
+    if Remotes then
+        local TriggerCelebration = Remotes:FindFirstChild("TriggerCelebration") :: RemoteEvent?
+        if TriggerCelebration then
+            TriggerCelebration:FireClient(player, {
+                type = "item_collected",
+                itemName = itemDef.name,
+                amount = amount,
+            })
+        end
+    end
+
+    -- Visual feedback: shrink + fade resource
     resourceNode.Transparency = 1
+    local glow = resourceNode:FindFirstChildOfClass("PointLight")
+    if glow then glow.Enabled = false end
+    local bb = resourceNode:FindFirstChildOfClass("BillboardGui")
+    if bb then bb.Enabled = false end
     local prompt = resourceNode:FindFirstChildOfClass("ProximityPrompt")
     if prompt then
         prompt.Enabled = false
@@ -236,18 +306,72 @@ function PlanetManager:_onResourceGathered(player: Player, resourceNode: BasePar
                 local newItemId = planetDef.resources[math.random(1, #planetDef.resources)]
                 local newItemDef = Items.get(newItemId)
                 if newItemDef then
+                    local newRarity = newItemDef.rarity or 1
                     activeResources[resourceNode] = {
                         itemId = newItemId,
                         planetId = data.planetId,
                     }
+                    resourceNode.Color = RARITY_COLORS[newRarity] or RARITY_COLORS[1]
                     if prompt then
                         prompt.ObjectText = newItemDef.name
                         prompt.Enabled = true
+                    end
+                    -- Update label
+                    if bb then
+                        bb.Enabled = true
+                        local label = bb:FindFirstChild("ResourceLabel")
+                        if label then
+                            (label :: TextLabel).Text = newItemDef.name
+                        end
+                    end
+                    -- Update glow color
+                    if glow then
+                        glow.Color = resourceNode.Color
+                        glow.Enabled = true
                     end
                 end
             end
             resourceNode.Transparency = 0
         end
+    end)
+end
+
+---------------------------------------------------------------------------
+-- Show floating text above player head
+---------------------------------------------------------------------------
+function PlanetManager:_showFloatingText(player: Player, text: string, color: Color3)
+    local character = player.Character
+    if not character then return end
+    local head = character:FindFirstChild("Head")
+    if not head then return end
+
+    local bb = Instance.new("BillboardGui")
+    bb.Size = UDim2.new(0, 200, 0, 40)
+    bb.StudsOffset = Vector3.new(0, 3, 0)
+    bb.AlwaysOnTop = true
+    bb.Parent = head
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = color
+    label.TextStrokeTransparency = 0.2
+    label.TextStrokeColor3 = Color3.new(0, 0, 0)
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 20
+    label.TextScaled = false
+    label.Parent = bb
+
+    -- Float up and fade
+    task.spawn(function()
+        for i = 1, 20 do
+            task.wait(0.05)
+            bb.StudsOffset = Vector3.new(0, 3 + i * 0.15, 0)
+            label.TextTransparency = i / 20
+            label.TextStrokeTransparency = 0.2 + (i / 20) * 0.8
+        end
+        bb:Destroy()
     end)
 end
 

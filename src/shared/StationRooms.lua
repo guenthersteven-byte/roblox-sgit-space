@@ -17,12 +17,13 @@ local StationRooms: { [string]: RoomDefinition } = {}
 StationRooms.storage = {
     id = "storage",
     name = "Lagerraum",
-    description = "Ein Raum fuer all deine gesammelten Schaetze!",
+    description = "Mehr Platz! (+5 Inventar-Slots)",
     cost = {
         { itemId = "station_panel", quantity = 4 },
         { itemId = "station_light", quantity = 1 },
     },
-    functionality = "storage",
+    functionality = "storage", -- +5 inventory slots
+    bonusSlots = 5,
     unlockQuestId = nil, -- Available from start
 }
 
@@ -32,7 +33,7 @@ StationRooms.storage = {
 StationRooms.garden = {
     id = "garden",
     name = "Gewaechshaus",
-    description = "Hier wachsen leckere Weltraum-Pflanzen!",
+    description = "Langsame Hunger-Regeneration auf der Station!",
     cost = {
         { itemId = "station_panel", quantity = 4 },
         { itemId = "station_window", quantity = 2 },
@@ -64,7 +65,7 @@ StationRooms.bedroom = {
 StationRooms.lab = {
     id = "lab",
     name = "Forschungslabor",
-    description = "Hier erforschst du neue Technologien!",
+    description = "Schaltet neue Rezepte frei: Maschinen & Geraete!",
     cost = {
         { itemId = "station_panel", quantity = 6 },
         { itemId = "station_light", quantity = 3 },
@@ -81,7 +82,7 @@ StationRooms.lab = {
 StationRooms.observatory = {
     id = "observatory",
     name = "Sternwarte",
-    description = "Schau dir die Sterne und Planeten an!",
+    description = "Zeigt welche Ressourcen auf welchem Planet zu finden sind!",
     cost = {
         { itemId = "station_panel", quantity = 4 },
         { itemId = "station_window", quantity = 4 },
@@ -97,14 +98,14 @@ StationRooms.observatory = {
 StationRooms.med_bay = {
     id = "med_bay",
     name = "Krankenstation",
-    description = "Hier wirst du schnell wieder gesund!",
+    description = "Schnelle Gesundheits-Regeneration auf der Station!",
     cost = {
         { itemId = "station_panel", quantity = 5 },
         { itemId = "station_light", quantity = 3 },
         { itemId = "glow_mushroom", quantity = 4 },
         { itemId = "energy_cell", quantity = 2 },
     },
-    functionality = "bedroom",
+    functionality = "med_bay", -- Fast health regen on station
     unlockQuestId = "quest_009",
 }
 
@@ -114,14 +115,14 @@ StationRooms.med_bay = {
 StationRooms.alien_room = {
     id = "alien_room",
     name = "Alien-Zimmer",
-    description = "Ein Zuhause fuer deine Alien-Freunde!",
+    description = "Gezaehmte Aliens wohnen hier und sind auf der Station sichtbar!",
     cost = {
         { itemId = "station_panel", quantity = 5 },
         { itemId = "station_window", quantity = 2 },
         { itemId = "jungle_plant", quantity = 5 },
         { itemId = "space_berry", quantity = 5 },
     },
-    functionality = "garden",
+    functionality = "alien_home", -- Tamed aliens visible on station
     unlockQuestId = "quest_004",
 }
 
@@ -131,14 +132,14 @@ StationRooms.alien_room = {
 StationRooms.engine_room = {
     id = "engine_room",
     name = "Maschinenraum",
-    description = "Das Herz der Station - voller Energie!",
+    description = "Das Herz der Station - Shuttle-Reise wird schneller!",
     cost = {
         { itemId = "station_panel", quantity = 8 },
         { itemId = "energy_cell", quantity = 4 },
         { itemId = "fire_crystal", quantity = 3 },
         { itemId = "frozen_metal", quantity = 5 },
     },
-    functionality = "lab",
+    functionality = "engine", -- Faster shuttle travel
     unlockQuestId = "quest_011",
 }
 

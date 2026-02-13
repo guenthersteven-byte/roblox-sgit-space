@@ -52,6 +52,7 @@ Items.space_berry = {
     icon = "rbxassetid://0",
     maxStack = 20,
     rarity = 1,
+    hungerRestore = 20,
 }
 
 ---------------------------------------------------------------------------
@@ -95,6 +96,7 @@ Items.frost_fish = {
     icon = "rbxassetid://0",
     maxStack = 15,
     rarity = 2,
+    hungerRestore = 30,
 }
 
 ---------------------------------------------------------------------------
@@ -138,6 +140,7 @@ Items.luminous_carrot = {
     icon = "rbxassetid://0",
     maxStack = 15,
     rarity = 2,
+    hungerRestore = 25,
 }
 
 ---------------------------------------------------------------------------
@@ -181,6 +184,7 @@ Items.ember_fruit = {
     icon = "rbxassetid://0",
     maxStack = 15,
     rarity = 2,
+    hungerRestore = 35,
 }
 
 ---------------------------------------------------------------------------
@@ -237,6 +241,61 @@ Items.taming_device = {
     icon = "rbxassetid://0",
     maxStack = 1,
     rarity = 2,
+}
+
+---------------------------------------------------------------------------
+-- Machines & Gadgets (Phase 8)
+---------------------------------------------------------------------------
+Items.oxygen_generator = {
+    id = "oxygen_generator",
+    name = "Sauerstoff-Generator",
+    description = "Erzeugt frische Luft - Sofort +50 O2!",
+    category = "gadget",
+    icon = "rbxassetid://0",
+    maxStack = 5,
+    rarity = 2,
+    oxygenRestore = 50,
+}
+
+Items.food_synthesizer = {
+    id = "food_synthesizer",
+    name = "Nahrungs-Synthesizer",
+    description = "Verwandelt Pflanzen in leckeres Essen - Sofort +40 Hunger!",
+    category = "gadget",
+    icon = "rbxassetid://0",
+    maxStack = 5,
+    rarity = 2,
+    hungerRestore = 40,
+}
+
+Items.alien_beacon = {
+    id = "alien_beacon",
+    name = "Alien-Leuchtfeuer",
+    description = "Lockt Aliens in der Naehe an!",
+    category = "gadget",
+    icon = "rbxassetid://0",
+    maxStack = 5,
+    rarity = 2,
+}
+
+Items.shield_module = {
+    id = "shield_module",
+    name = "Schutz-Modul",
+    description = "Schuetzt vor extremer Hitze und Kaelte!",
+    category = "gadget",
+    icon = "rbxassetid://0",
+    maxStack = 1,
+    rarity = 3,
+}
+
+Items.turbo_boots = {
+    id = "turbo_boots",
+    name = "Turbo-Stiefel",
+    description = "Laufe 50% schneller auf Planeten!",
+    category = "gadget",
+    icon = "rbxassetid://0",
+    maxStack = 1,
+    rarity = 3,
 }
 
 ---------------------------------------------------------------------------

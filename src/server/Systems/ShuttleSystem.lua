@@ -20,6 +20,7 @@ local PlanetManager = nil
 local DayCycleServer = nil
 local PlayerDataManager = nil
 local QuestManager = nil
+local PlayerSafety = nil
 local Remotes = nil
 
 -- Cooldown to prevent rapid travel
@@ -35,12 +36,12 @@ function ShuttleSystem:Init()
     PlayerDataManager = require(Systems:WaitForChild("PlayerDataManager"))
     Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
-    -- QuestManager may not be loaded yet, defer
+    -- Deferred system loading
     task.defer(function()
         local qm = Systems:FindFirstChild("QuestManager")
-        if qm then
-            QuestManager = require(qm)
-        end
+        if qm then QuestManager = require(qm) end
+        local ps = Systems:FindFirstChild("PlayerSafety")
+        if ps then PlayerSafety = require(ps) end
     end)
 end
 
@@ -86,6 +87,43 @@ function ShuttleSystem:_setupShuttleConsole()
         console.Parent = stationFolder
     end
 
+    -- Make console glow and add "SHUTTLE" sign
+    local existingLight = console:FindFirstChildOfClass("PointLight")
+    if not existingLight then
+        local glow = Instance.new("PointLight")
+        glow.Color = Color3.fromHex("43b02a")
+        glow.Brightness = 2
+        glow.Range = 25
+        glow.Parent = console
+    end
+
+    -- Add "SHUTTLE" billboard sign
+    local existingSign = console:FindFirstChildOfClass("BillboardGui")
+    if not existingSign then
+        local sign = Instance.new("BillboardGui")
+        sign.Size = UDim2.new(0, 200, 0, 60)
+        sign.StudsOffset = Vector3.new(0, 4, 0)
+        sign.AlwaysOnTop = false
+        sign.MaxDistance = 100
+        sign.Parent = console
+
+        local signLabel = Instance.new("TextLabel")
+        signLabel.Size = UDim2.new(1, 0, 1, 0)
+        signLabel.BackgroundColor3 = Color3.fromHex("14350d")
+        signLabel.BackgroundTransparency = 0.3
+        signLabel.Text = "SHUTTLE"
+        signLabel.TextColor3 = Color3.fromHex("5cd43e")
+        signLabel.TextStrokeTransparency = 0
+        signLabel.TextStrokeColor3 = Color3.fromHex("14350d")
+        signLabel.Font = Enum.Font.GothamBold
+        signLabel.TextSize = 32
+        signLabel.Parent = sign
+
+        local signCorner = Instance.new("UICorner")
+        signCorner.CornerRadius = UDim.new(0, 8)
+        signCorner.Parent = signLabel
+    end
+
     -- ProximityPrompt for shuttle console
     local prompt = console:FindFirstChildOfClass("ProximityPrompt")
     if not prompt then
@@ -93,7 +131,7 @@ function ShuttleSystem:_setupShuttleConsole()
         prompt.ObjectText = "Shuttle-Konsole"
         prompt.ActionText = "Planeten anzeigen"
         prompt.HoldDuration = 0
-        prompt.MaxActivationDistance = 10
+        prompt.MaxActivationDistance = 15
         prompt.Parent = console
     end
 
@@ -122,11 +160,49 @@ function ShuttleSystem:_setupShuttleConsole()
                 if not returnPrompt then
                     returnPrompt = Instance.new("ProximityPrompt")
                     returnPrompt.Name = "ReturnPrompt"
-                    returnPrompt.ObjectText = "Shuttle"
+                    returnPrompt.ObjectText = "Shuttle rufen"
                     returnPrompt.ActionText = "Zurueck zur Station"
                     returnPrompt.HoldDuration = 0.5
-                    returnPrompt.MaxActivationDistance = 15
+                    returnPrompt.MaxActivationDistance = 20
                     returnPrompt.Parent = landingPad
+                end
+
+                -- Add glowing sign above landing pad
+                local padSign = landingPad:FindFirstChild("PadSign")
+                if not padSign then
+                    local sign = Instance.new("BillboardGui")
+                    sign.Name = "PadSign"
+                    sign.Size = UDim2.new(0, 250, 0, 50)
+                    sign.StudsOffset = Vector3.new(0, 5, 0)
+                    sign.AlwaysOnTop = false
+                    sign.MaxDistance = 80
+                    sign.Parent = landingPad
+
+                    local signLabel = Instance.new("TextLabel")
+                    signLabel.Size = UDim2.new(1, 0, 1, 0)
+                    signLabel.BackgroundColor3 = Color3.fromHex("14350d")
+                    signLabel.BackgroundTransparency = 0.3
+                    signLabel.Text = "SHUTTLE-LANDEPLATZ"
+                    signLabel.TextColor3 = Color3.fromHex("5cd43e")
+                    signLabel.TextStrokeTransparency = 0
+                    signLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+                    signLabel.Font = Enum.Font.GothamBold
+                    signLabel.TextSize = 22
+                    signLabel.Parent = sign
+
+                    local signCorner = Instance.new("UICorner")
+                    signCorner.CornerRadius = UDim.new(0, 6)
+                    signCorner.Parent = signLabel
+                end
+
+                -- Add glow to landing pad
+                local padLight = landingPad:FindFirstChildOfClass("PointLight")
+                if not padLight then
+                    local glow = Instance.new("PointLight")
+                    glow.Color = Color3.fromHex("43b02a")
+                    glow.Brightness = 1.5
+                    glow.Range = 30
+                    glow.Parent = landingPad
                 end
 
                 (returnPrompt :: ProximityPrompt).Triggered:Connect(function(player: Player)
@@ -218,8 +294,14 @@ function ShuttleSystem:TryTravel(player: Player, destination: string): (boolean,
         end
     end
 
-    -- Update location
+    -- Update location in both systems
     PlanetManager:SetPlayerLocation(player, destination)
+    if PlayerSafety then
+        PlayerSafety:SetPlayerLocation(player, destination)
+        if destination == "station" then
+            PlayerSafety:RestoreAll(player) -- Full heal on return to station
+        end
+    end
 
     -- Notify QuestManager of planet visit
     if destination ~= "station" and QuestManager and type(QuestManager.OnPlanetVisited) == "function" then
