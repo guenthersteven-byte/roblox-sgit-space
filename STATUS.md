@@ -7,7 +7,7 @@
 
 ---
 
-## Aktueller Status: Bereit fuer Roblox Studio Integration
+## Aktueller Status: Rojo-Projekt erweitert, auf GitHub gepusht
 
 | Phase | Status | Beschreibung |
 |-------|--------|--------------|
@@ -31,6 +31,7 @@
 | Blender | 5.0 | Installiert (C:\Program Files\Blender Foundation\Blender 5.0) |
 | Blender MCP | addon v1.2 + blender-mcp v1.5.5 | Addon installiert, Server laeuft (Port 9876), MCP-Config erstellt, Verbindung verifiziert |
 | uv/uvx | 0.10.2 | Installiert (C:\Users\SG\.local\bin\uvx.exe), blender-mcp vorinstalliert |
+| GitHub | guenthersteven-byte/roblox-sgit-space | Initial commit gepusht (108 Dateien, 12083 Zeilen) |
 
 ---
 
