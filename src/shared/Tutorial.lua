@@ -29,7 +29,7 @@ export type TutorialStep = {
     Record each step as a separate .ogg/.mp3 and upload via Creator Hub.
     Recommended: Friendly, slow German narration for kids 5-7.
 ]]
-Tutorial.steps: { TutorialStep } = {
+Tutorial.steps = {
     {
         id = 1,
         title = "Willkommen!",

@@ -7,7 +7,7 @@
 
 ---
 
-## Aktueller Status: Rojo-Projekt erweitert, auf GitHub gepusht
+## Aktueller Status: SPIELBAR - Erster Playtest erfolgreich!
 
 | Phase | Status | Beschreibung |
 |-------|--------|--------------|
@@ -17,6 +17,7 @@
 | Phase 4: Aliens & Quests | ERLEDIGT | Alien AI, Quests, Station-Ausbau, Quest-Integration |
 | Phase 5: Polish & Launch | ERLEDIGT | Tutorial mit Vorlese-Support, Settings/Accessibility, Rate-Limiting |
 | Phase 6: 3D-Assets | ERLEDIGT | Station, Shuttle, 5 Aliens, 21 Planeten-Props (4 Planeten + Scrap Metal) |
+| Phase 7: Studio-Integration | ERLEDIGT | FBX-Import, Colorize-Scripts, Scale/Position-Fixes, erster Playtest |
 
 ---
 
@@ -120,6 +121,16 @@
 ### Phase 5: Server-Optimierungen
 - [x] `Main.server.lua` - TutorialComplete RemoteEvent + Handler
 - [x] `PlanetManager.lua` - Rate-Limiting fuer Gathering (Anti-Exploit)
+
+### Phase 7: Studio-Integration Scripts
+- [x] `scripts/colorize_models.lua` - Station + Shuttle mit sgit CI-Farben (#14350d, #43b02a, #5cd43e)
+- [x] `scripts/colorize_aliens.lua` - 5 Alien-Modelle: Neon-Eyes, Smooth Plastic Bodies, Farben per Spezies
+- [x] `scripts/colorize_props.lua` - 21 Planeten-Props koloriert (Verdania/Glacius/Luminos/Volcanus + Scrap)
+- [x] `scripts/fix_scale.lua` - Station 150 Studs, Shuttle 15 Studs, Aliens 4 Studs
+- [x] `scripts/fix_positions.lua` - PrimaryPart setzen, Positionen validieren
+
+### Phase 7: Bug-Fixes
+- [x] `src/shared/Tutorial.lua` - Type-Annotation Fix (Luau Kompatibilitaet)
 
 ---
 
@@ -231,6 +242,14 @@ services/robloxStudio/
 │       ├── prop_volcanus_volcanic_rock.fbx[FERTIG]
 │       ├── prop_volcanus_lava_pool.fbx  [FERTIG]
 │       └── prop_scrap_metal.fbx         [FERTIG]
+├── scripts/
+│   ├── setup_world.lua                  [FERTIG - Welt-Setup Command Bar Script]
+│   ├── generate_terrain.lua             [FERTIG - Terrain-Generierung]
+│   ├── colorize_models.lua              [FERTIG - Station + Shuttle CI-Farben]
+│   ├── colorize_aliens.lua              [FERTIG - 5 Alien-Modelle kolorieren]
+│   ├── colorize_props.lua               [FERTIG - 21 Planeten-Props kolorieren]
+│   ├── fix_scale.lua                    [FERTIG - Modell-Skalierung korrigieren]
+│   └── fix_positions.lua                [FERTIG - Modell-Positionen validieren]
 ├── default.project.json                 [FERTIG]
 ├── .gitignore                           [FERTIG]
 ├── .luaurc                              [FERTIG]
@@ -249,6 +268,24 @@ services/robloxStudio/
 - ~~blender-mcp musste jedes Mal 70 Packages bauen → Timeout bei Claude Code~~ **GEFIXT** (uv tool install blender-mcp, jetzt vorinstalliert)
 - ~~Sound-IDs sind alle Placeholder (`rbxassetid://0`)~~ **ERLEDIGT** (Roblox Stock IDs eingetragen, in Studio verifizieren)
 - ~~Alien-Modelle sind Placeholder-Parts (Kugeln) - muessen durch echte 3D-Modelle ersetzt werden~~ **ERLEDIGT** (5 Alien-FBX exportiert)
+- ~~Tutorial.lua Type-Annotation inkompatibel~~ **GEFIXT** (steps Typ-Annotation entfernt)
+
+---
+
+## Erster Playtest (2026-02-13)
+
+Erfolgreich getestet in Roblox Studio mit User "dePapa38":
+
+- Client Bootstrap: OK ("sgit Space Station Client Ready")
+- Rojo Sync: OK ("Full sync received from server")
+- Tutorial-System: OK (8 Schritte, "Willkommen!" Dialog, Weiter/Ueberspringen)
+- Tutorial-Completion: OK ("Tutorial completed for dePapa38")
+- Minimap: OK (gruener Kreis mit Spieler/Ressourcen-Dots)
+- Alien-Modelle: OK (Pingui, Flammi, Glimmi sichtbar mit Nametags)
+- Shuttle: OK (sichtbar im Himmel)
+- Planeten-Props: OK (leuchtende Orbs auf Planeten-Oberflaeche)
+- Quest-System: Laedt ("Lade Quest..." Anzeige)
+- Skriptanalyse: 0 Fehler, 0 Warnungen
 
 ---
 
@@ -257,20 +294,17 @@ services/robloxStudio/
 1. ~~**Blender MCP** einrichten~~ **ERLEDIGT**
 2. ~~**Phase 5** starten~~ **ERLEDIGT**
 3. ~~**Blender Addon in Blender installieren**~~ **ERLEDIGT** (Server laeuft Port 9876)
-4. ~~**Claude Code MCP-Config fixen**~~ **ERLEDIGT** (.mcp.json hatte falsches Format, mcpServers-Wrapper fehlte)
-5. ~~**blender-mcp vorinstallieren**~~ **ERLEDIGT** (`uv tool install blender-mcp` v1.5.5, 70 Packages)
-6. ~~**Verbindung verifiziert**~~ **ERLEDIGT** (MCP Handshake OK, BlenderMCP v1.26.0, Blender Port 9876 offen)
-7. **Claude Code Session neu starten** damit Blender MCP Tools geladen werden
-   - Blender muss offen sein + MCP Server gestartet (N-Taste > BlenderMCP Tab > Start Server)
-   - Dann direkt mit 3D-Assets loslegen
-6. ~~**3D-Assets in Blender erstellen**~~ **ERLEDIGT** (Station, Shuttle, 5 Aliens)
-7. ~~**Planeten-Props in Blender erstellen**~~ **ERLEDIGT** (21 Props: 4 Planeten + Scrap Metal)
-8. **FBX-Modelle in Roblox Studio importieren** (28 FBX-Dateien im export/ Ordner)
-   - Setup-Script: `scripts/setup_world.lua` (Command Bar ausfuehren)
-   - Terrain-Script: `scripts/generate_terrain.lua` (Command Bar ausfuehren)
-9. ~~Sound-Assets~~ **ERLEDIGT** (Roblox Stock Audio IDs in Sounds.lua eingetragen)
-10. Voice-Recordings fuer Tutorial (8 deutsche Narrations-Clips)
-11. Rojo Sync testen + Playtesting
+4. ~~**Claude Code MCP-Config fixen**~~ **ERLEDIGT**
+5. ~~**blender-mcp vorinstallieren**~~ **ERLEDIGT** (v1.5.5)
+6. ~~**Verbindung verifiziert**~~ **ERLEDIGT**
+7. ~~**3D-Assets in Blender erstellen**~~ **ERLEDIGT** (Station, Shuttle, 5 Aliens)
+8. ~~**Planeten-Props in Blender erstellen**~~ **ERLEDIGT** (21 Props)
+9. ~~**FBX-Modelle in Roblox Studio importieren**~~ **ERLEDIGT** (28 FBX + Colorize/Scale/Position Scripts)
+10. ~~**Sound-Assets**~~ **ERLEDIGT** (Roblox Stock Audio IDs)
+11. ~~**Rojo Sync testen + Playtesting**~~ **ERLEDIGT** (erster Playtest erfolgreich!)
+12. Voice-Recordings fuer Tutorial (8 deutsche Narrations-Clips)
+13. Feintuning: Gameplay-Balance, weitere Playtests
+14. Roblox Game veroeffentlichen (Creator Hub)
 
 ---
 
@@ -313,4 +347,4 @@ services/robloxStudio/
 
 ---
 
-*Zuletzt aktualisiert: 2026-02-13*
+*Zuletzt aktualisiert: 2026-02-13 (Phase 7 abgeschlossen, erster Playtest erfolgreich)*
