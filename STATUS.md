@@ -7,7 +7,7 @@
 
 ---
 
-## Aktueller Status: SPIELBAR - Erster Playtest erfolgreich!
+## Aktueller Status: PHASE 8 GAMEPLAY OVERHAUL - Zweiter Playtest erfolgreich!
 
 | Phase | Status | Beschreibung |
 |-------|--------|--------------|
@@ -18,6 +18,7 @@
 | Phase 5: Polish & Launch | ERLEDIGT | Tutorial mit Vorlese-Support, Settings/Accessibility, Rate-Limiting |
 | Phase 6: 3D-Assets | ERLEDIGT | Station, Shuttle, 5 Aliens, 21 Planeten-Props (4 Planeten + Scrap Metal) |
 | Phase 7: Studio-Integration | ERLEDIGT | FBX-Import, Colorize-Scripts, Scale/Position-Fixes, erster Playtest |
+| Phase 8: Gameplay Overhaul | ERLEDIGT | Space-Sky, Absturz-Schutz, O2/Hunger, Shuttle-Navigation, Alien-Taming, Crafting-Erweiterung |
 
 ---
 
@@ -47,7 +48,7 @@
 ### Shared Modules (src/shared/ -> ReplicatedStorage)
 - [x] `Constants.lua` - sgit CI Farben, Game-Balance, UI-Config
 - [x] `Types.lua` - 15+ Luau Type Definitions (Items, Crafting, Aliens, Quests, Profile)
-- [x] `Items.lua` - 24 Items (4 Planeten-Ressourcen, Tools, Food, Gifts, Station Parts)
+- [x] `Items.lua` - 29 Items (4 Planeten-Ressourcen, Tools, Food, Gifts, Station Parts, 5 Gadgets)
 - [x] `Utility/TableUtil.lua` - deepCopy, merge, find, filter, map
 
 ### Server (src/server/ -> ServerScriptService)
@@ -68,7 +69,7 @@
 - [x] `src/client/Controllers/CraftingUI.lua` - Recipe Cards, Material Check, Craft Button, C-Toggle
 
 ### Phase 2: Shared Data
-- [x] `src/shared/Recipes.lua` - 8 Crafting Recipes (4 Starter + 4 Quest-unlocked)
+- [x] `src/shared/Recipes.lua` - 13 Crafting Recipes (4 Starter + 4 Quest-unlocked + 5 Gadget-Rezepte)
 
 ### Phase 2: UI
 - [x] `src/StarterGui/SpaceStationUI/HUD.lua` - Health/O2/Hunger Bars + 5-Slot Hotbar
@@ -122,6 +123,29 @@
 - [x] `Main.server.lua` - TutorialComplete RemoteEvent + Handler
 - [x] `PlanetManager.lua` - Rate-Limiting fuer Gathering (Anti-Exploit)
 
+### Phase 8A: Space-Umgebung
+- [x] `src/server/Systems/DayCycleServer.lua` - Schwarzer Weltraum-Himmel, 5000 Sterne, 5 dekorative Planeten im Hintergrund
+- [x] `default.project.json` - Lighting: ClockTime=0, Brightness=0.8, Atmosphere Density=0.02, Bloom
+
+### Phase 8B: Absturz-Schutz & Respawn
+- [x] `src/server/Systems/PlayerSafety.lua` (NEU) - Void-Kill-Zone (Y<-50), unsichtbare Station-Barrieren, Planeten-Grenzen (280 Studs), sanfter Respawn
+- [x] `src/server/Main.server.lua` - PlayerSafety in System-Ladeliste
+
+### Phase 8C: Shuttle & Navigation
+- [x] `src/server/Systems/ShuttleSystem.lua` - Leuchtende "SHUTTLE" Schilder, Landeplatz-Schilder, PointLights, PlayerSafety-Integration
+- [x] `src/client/Controllers/ShuttleUI.lua` - Planet-Name gross einblenden bei Ankunft (ArrivalText)
+
+### Phase 8D: Ressourcen-Abbau verbessert
+- [x] `src/server/Systems/PlanetManager.lua` - Seltenheits-Farben (gruen/blau/gold), Floating-Text (+X ItemName), PointLight-Glow, BillboardGui-Labels, Laser Cutter +1 Bonus
+
+### Phase 8E: Alien-System ueberarbeitet
+- [x] `src/server/Systems/AlienManager.lua` - Sprechblasen ("Hallo! Ich hab Hunger..."), Taming Device PFLICHT, Zaehm-Belohnungen (seltene Ressourcen), naechster Spieler-Erkennung
+
+### Phase 8F: Crafting & Items erweitert
+- [x] `src/shared/Items.lua` - 5 neue Gadgets (Sauerstoff-Generator, Nahrungs-Synthesizer, Alien-Leuchtfeuer, Schutz-Modul, Turbo-Stiefel), hungerRestore/oxygenRestore Werte
+- [x] `src/shared/Recipes.lua` - 5 neue Rezepte (quest-locked), jetzt 13 Rezepte total
+- [x] `src/shared/StationRooms.lua` - Funktionale Raeume (Storage +5 Slots, Garden Hunger-Regen, Lab neue Rezepte, Med Bay Health-Regen, Alien Room, Observatory, Engine Room)
+
 ### Phase 7: Studio-Integration Scripts
 - [x] `scripts/colorize_models.lua` - Station + Shuttle mit sgit CI-Farben (#14350d, #43b02a, #5cd43e)
 - [x] `scripts/colorize_aliens.lua` - 5 Alien-Modelle: Neon-Eyes, Smooth Plastic Bodies, Farben per Spezies
@@ -164,12 +188,13 @@ services/robloxStudio/
 │   │       ├── PlayerDataManager.lua    [FERTIG]
 │   │       ├── InventoryServer.lua      [FERTIG]
 │   │       ├── CraftingServer.lua       [FERTIG + Quest-Integration]
-│   │       ├── DayCycleServer.lua       [FERTIG]
-│   │       ├── PlanetManager.lua        [FERTIG + Quest + Rate-Limiting]
-│   │       ├── ShuttleSystem.lua        [FERTIG + Quest-Integration]
-│   │       ├── AlienManager.lua         [FERTIG - Phase 4]
+│   │       ├── DayCycleServer.lua       [FERTIG + Space-Sky + Deko-Planeten]
+│   │       ├── PlanetManager.lua        [FERTIG + Rarity-Colors + Floating-Text + Laser-Bonus]
+│   │       ├── ShuttleSystem.lua        [FERTIG + Leucht-Schilder + PlayerSafety]
+│   │       ├── AlienManager.lua         [FERTIG + Sprechblasen + Taming-Device + Rewards]
 │   │       ├── QuestManager.lua         [FERTIG - Phase 4]
-│   │       └── StationBuilder.lua       [FERTIG - Phase 4]
+│   │       ├── StationBuilder.lua       [FERTIG - Phase 4]
+│   │       └── PlayerSafety.lua         [FERTIG - Phase 8B: Void-Kill, Barrieren, O2/Hunger]
 │   ├── client/
 │   │   ├── Main.client.lua              [FERTIG]
 │   │   ├── Controllers/
@@ -262,6 +287,11 @@ services/robloxStudio/
 ## Bekannte Issues
 
 - Rojo Binary nicht in PATH (muss ueber `C:\Users\SG\.aftman\tool-storage\rojo-rbx\rojo\7.7.0-rc.1\rojo.exe` aufgerufen werden)
+- Rojo HTTP-Fehler waehrend Playtest: "Http requests can only be executed by game server" → Rojo muss im Edit-Mode verbunden werden, DANN Playtest starten
+- Space-Himmel noch nicht komplett schwarz (Atmosphere/Lighting Feintuning noetig in Studio)
+- Turbo Boots / Shield Module Items definiert aber Logik nicht implementiert
+- Raum-Effekte (Storage +5 Slots etc.) definiert aber StationBuilder nicht aktualisiert
+- Essen-Mechanik: hungerRestore Werte definiert aber kein "Essen"-Action auf Server
 - ~~Blender MCP Setup steht noch aus~~ **ERLEDIGT** (Addon + MCP-Config)
 - ~~HUD.lua wurde nicht von Main.client.lua aufgerufen~~ **GEFIXT**
 - ~~.mcp.json hatte falsches Format (mcpServers-Wrapper fehlte)~~ **GEFIXT**
@@ -272,7 +302,7 @@ services/robloxStudio/
 
 ---
 
-## Erster Playtest (2026-02-13)
+## Erster Playtest (2026-02-13, Phase 7)
 
 Erfolgreich getestet in Roblox Studio mit User "dePapa38":
 
@@ -289,6 +319,27 @@ Erfolgreich getestet in Roblox Studio mit User "dePapa38":
 
 ---
 
+## Zweiter Playtest (2026-02-13, Phase 8)
+
+Nach Gameplay-Overhaul getestet:
+
+- Rojo Sync: OK (Port 34872, nach Reconnect stabil)
+- Space-Himmel: Dunkler als vorher, aber noch nicht komplett schwarz (Feintuning noetig)
+- Alle 4 Alien-Typen sichtbar: Flammi, Pingui, Glimmi, Blobbi
+- Station-Struktur: Sichtbar mit korrekten Proportionen
+- Skriptanalyse: 0 Fehler, 0 Warnungen
+- Phase 8 Code: 11 Dateien geaendert, +1025 Zeilen, alle sauber verifiziert
+
+### Gameplay-Feedback (vor Phase 8 eingearbeitet):
+- Spieler wusste nicht wie man auf Planeten kommt → Leuchtende Shuttle-Schilder hinzugefuegt
+- Absturz von Station = haengt in der Luft → Void-Kill-Zone + unsichtbare Barrieren
+- Blauer Himmel statt Weltraum → Space-Sky mit Sternen + Deko-Planeten
+- Aliens einfangen unklar → Taming Device Pflicht + Sprechblasen
+- Ressourcen/Crafting nicht verstaendlich → Floating-Text + Rarity-Farben
+- Keine Maschinen/Geraete → 5 neue Gadgets + 5 neue Rezepte
+
+---
+
 ## Naechste Schritte
 
 1. ~~**Blender MCP** einrichten~~ **ERLEDIGT**
@@ -302,9 +353,17 @@ Erfolgreich getestet in Roblox Studio mit User "dePapa38":
 9. ~~**FBX-Modelle in Roblox Studio importieren**~~ **ERLEDIGT** (28 FBX + Colorize/Scale/Position Scripts)
 10. ~~**Sound-Assets**~~ **ERLEDIGT** (Roblox Stock Audio IDs)
 11. ~~**Rojo Sync testen + Playtesting**~~ **ERLEDIGT** (erster Playtest erfolgreich!)
-12. Voice-Recordings fuer Tutorial (8 deutsche Narrations-Clips)
-13. Feintuning: Gameplay-Balance, weitere Playtests
-14. Roblox Game veroeffentlichen (Creator Hub)
+12. ~~**Gameplay Overhaul (Phase 8)**~~ **ERLEDIGT** (11 Dateien, +1025 Zeilen)
+13. Space-Himmel Feintuning (noch nicht komplett schwarz)
+14. Noch nicht funktional implementiert:
+    - Turbo Boots Geschwindigkeits-Boost (Item existiert, Logik fehlt)
+    - Shield Module Schutz-Logik (Item existiert, Logik fehlt)
+    - StationBuilder Raum-Effekte (Definitionen existieren, Builder nicht aktualisiert)
+    - Food Eat-Mechanik (hungerRestore Werte definiert, Server-Action fehlt)
+15. Voice-Recordings fuer Tutorial (8 deutsche Narrations-Clips)
+16. Phase 8G: Texturen verbessern (Blender) - spaeter
+17. Feintuning: Gameplay-Balance, weitere Playtests
+18. Roblox Game veroeffentlichen (Creator Hub)
 
 ---
 
@@ -347,4 +406,4 @@ Erfolgreich getestet in Roblox Studio mit User "dePapa38":
 
 ---
 
-*Zuletzt aktualisiert: 2026-02-13 (Phase 7 abgeschlossen, erster Playtest erfolgreich)*
+*Zuletzt aktualisiert: 2026-02-13 (Phase 8 abgeschlossen, zweiter Playtest erfolgreich, Git: 042c18e)*
