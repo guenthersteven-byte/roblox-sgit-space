@@ -1,0 +1,244 @@
+{
+  "name": "sgit-space-station",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "$path": "src/shared",
+      "$ignoreUnknownInstances": true
+    },
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$path": "src/server",
+      "$ignoreUnknownInstances": true
+    },
+
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "$path": "src/ServerStorage",
+      "$ignoreUnknownInstances": true
+    },
+
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "$ignoreUnknownInstances": true,
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$path": "src/client",
+        "$ignoreUnknownInstances": true
+      }
+    },
+
+    "StarterGui": {
+      "$className": "StarterGui",
+      "$path": "src/StarterGui",
+      "$ignoreUnknownInstances": true
+    },
+
+    "Workspace": {
+      "$className": "Workspace",
+      "$ignoreUnknownInstances": true,
+      "$properties": {
+        "FallenPartsDestroyHeight": -500
+      },
+
+      "SpaceStation": {
+        "$className": "Folder"
+      },
+      "Shuttle": {
+        "$className": "Folder"
+      },
+
+      "PlanetZones": {
+        "$className": "Folder",
+
+        "Zone_verdania": {
+          "$className": "Part",
+          "$properties": {
+            "Size": [500, 200, 500],
+            "Position": [2000, 50, 0],
+            "Anchored": true,
+            "Transparency": 1,
+            "CanCollide": false,
+            "CanQuery": false
+          }
+        },
+        "Zone_glacius": {
+          "$className": "Part",
+          "$properties": {
+            "Size": [500, 200, 500],
+            "Position": [0, 50, 2000],
+            "Anchored": true,
+            "Transparency": 1,
+            "CanCollide": false,
+            "CanQuery": false
+          }
+        },
+        "Zone_luminos": {
+          "$className": "Part",
+          "$properties": {
+            "Size": [400, 200, 400],
+            "Position": [-2000, 50, 0],
+            "Anchored": true,
+            "Transparency": 1,
+            "CanCollide": false,
+            "CanQuery": false
+          }
+        },
+        "Zone_volcanus": {
+          "$className": "Part",
+          "$properties": {
+            "Size": [400, 200, 400],
+            "Position": [0, 50, -2000],
+            "Anchored": true,
+            "Transparency": 1,
+            "CanCollide": false,
+            "CanQuery": false
+          }
+        },
+
+        "Spawn_verdania": {
+          "$className": "SpawnLocation",
+          "$properties": {
+            "Size": [8, 1, 8],
+            "Position": [2000, 5, 0],
+            "Anchored": true,
+            "Transparency": 0.8,
+            "CanCollide": true,
+            "Neutral": true,
+            "Enabled": false
+          }
+        },
+        "Spawn_glacius": {
+          "$className": "SpawnLocation",
+          "$properties": {
+            "Size": [8, 1, 8],
+            "Position": [0, 5, 2000],
+            "Anchored": true,
+            "Transparency": 0.8,
+            "CanCollide": true,
+            "Neutral": true,
+            "Enabled": false
+          }
+        },
+        "Spawn_luminos": {
+          "$className": "SpawnLocation",
+          "$properties": {
+            "Size": [8, 1, 8],
+            "Position": [-2000, 5, 0],
+            "Anchored": true,
+            "Transparency": 0.8,
+            "CanCollide": true,
+            "Neutral": true,
+            "Enabled": false
+          }
+        },
+        "Spawn_volcanus": {
+          "$className": "SpawnLocation",
+          "$properties": {
+            "Size": [8, 1, 8],
+            "Position": [0, 5, -2000],
+            "Anchored": true,
+            "Transparency": 0.8,
+            "CanCollide": true,
+            "Neutral": true,
+            "Enabled": false
+          }
+        }
+      },
+
+      "StationPlatform": {
+        "$className": "Part",
+        "$properties": {
+          "Size": [200, 1, 200],
+          "Position": [0, 99, 0],
+          "Anchored": true,
+          "Transparency": 1,
+          "CanCollide": true
+        }
+      },
+
+      "StationSpawn": {
+        "$className": "SpawnLocation",
+        "$properties": {
+          "Size": [10, 1, 10],
+          "Position": [0, 101, 10],
+          "Anchored": true,
+          "Transparency": 1,
+          "CanCollide": true,
+          "Neutral": true
+        }
+      },
+
+      "ShuttleSpawn": {
+        "$className": "Part",
+        "$properties": {
+          "Size": [6, 1, 6],
+          "Position": [0, 102, 0],
+          "Anchored": true,
+          "Transparency": 0.5,
+          "CanCollide": false
+        }
+      },
+
+      "Props_verdania": {
+        "$className": "Folder"
+      },
+      "Props_glacius": {
+        "$className": "Folder"
+      },
+      "Props_luminos": {
+        "$className": "Folder"
+      },
+      "Props_volcanus": {
+        "$className": "Folder"
+      }
+    },
+
+    "Lighting": {
+      "$className": "Lighting",
+      "$ignoreUnknownInstances": true,
+      "$properties": {
+        "Ambient": {"Color3": [0.039, 0.059, 0.031]},
+        "OutdoorAmbient": {"Color3": [0.102, 0.165, 0.251]},
+        "Brightness": 1,
+        "ClockTime": 14,
+        "FogEnd": 10000
+      },
+
+      "SpaceSky": {
+        "$className": "Sky",
+        "$properties": {
+          "CelestialBodiesShown": true,
+          "StarCount": 5000
+        }
+      },
+
+      "SpaceAtmosphere": {
+        "$className": "Atmosphere",
+        "$properties": {
+          "Density": 0.1,
+          "Offset": 0,
+          "Color": {"Color3": [0.102, 0.165, 0.251]},
+          "Decay": {"Color3": [0.039, 0.059, 0.031]},
+          "Glare": 0,
+          "Haze": 0
+        }
+      },
+
+      "SpaceBloom": {
+        "$className": "BloomEffect",
+        "$properties": {
+          "Intensity": 0.5,
+          "Size": 24,
+          "Threshold": 0.8
+        }
+      }
+    }
+  },
+
+  "servePort": 34872,
+  "emitLegacyScripts": true
+}
